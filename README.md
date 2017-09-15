@@ -10,7 +10,7 @@ You must have setup a Spark bot and obtained the Authorization token, additional
 
 ### Usage:
 
-IMGURAPIKEY=<> SPARKAPIKEY=<> node server.js
+IMGURAPIKEY=KEY SPARKAPIKEY=KEY node server.js
 
 No console output is expected with this.
 
