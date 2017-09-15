@@ -7,7 +7,7 @@ var search = (searchString, callback) => {
   var imgurl = 'https://api.imgur.com/3';
 
   var options = {
-	  url: imgurl + '/gallery/search/viral?q_type=anigif&q_any=' + encodeURIComponent(searchString),
+	  url: imgurl + '/gallery/search/time?q_type=anigif&q_all=' + encodeURIComponent(searchString),
 	  headers: {
 		  'Authorization': 'Client-ID ' + IMGURAPIKEY
 	  },
