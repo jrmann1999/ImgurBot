@@ -18,7 +18,7 @@ No console output is expected with this.
 
 I have utilized the debug module within NPM to setup custom debugging, the three named debug options are:
 
-DEBUG=server
-    This will give you debug information about the main server routine, generally giving you console logging indicating the steps the system is taking
-DEBUG=imgur or spark
-    This will highlight any errors or non HTTP status codes of 200, and what the data looks like when that occurs
+DEBUG=server<br>
+<tab>This will give you debug information about the main server routine, generally giving you console logging indicating the steps the system is taking
+DEBUG=imgur or spark<br>
+<tab>This will highlight any errors or non HTTP status codes of 200, and what the data looks like when that occurs
