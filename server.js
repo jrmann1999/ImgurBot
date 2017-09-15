@@ -1,42 +1,60 @@
 //Standard NPM modules
 const express = require('express');
 const bodyparser = require('body-parser');
-//const rp = require('request-promise-native');
-const dq = require('double-ended-queue');
+const dequeue = require('double-ended-queue');
+const debug = require('debug')('server');
 
-//Helper modules (local)
-const spark = require('./spark.js')
-const imgur = require('./imgur.js')
+const spark = require('./spark.js');
+const imgur = require('./imgur.js');
 
+var botName = 'ImgurBot';
+var msgQueue = new dequeue();
 
 var app = express();
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
-var messageHistory = new dq(10);
 
 app.all('/spark', (req, res) => {
   res.send();
-  console.log("**", req.body);
-  spark.postMessage();
-  var message = spark.getMessage(body.id);
+  debug('Request: ', req.body.data);
+  spark.getMessage(req.body.data.id, (messageDetail) => {
+    debug('messageDetail: ', messageDetail);
+    if (messageDetail.personEmail !== botName + '@sparkbot.io') {
+      if (messageDetail.roomType === 'group') {
+        debug('Group Message');
+        // Check if the bot is mentioned, if not ignore this
+        if (messageDetail.text.split(' ')[0] === botName) {
+          // Strip off the @ reference to the Bot
+          msgText = messageDetail.text.split(' ').slice(1).join(' ');
+          if(msgText.match(/^delete/i)) {
+            debug('delete');
+            if(!msgQueue.isEmpty()) {
+              var deleteMsgId = msgQueue.pop();
+              spark.deleteMessage(deleteMsgId.id, (statusCode) => {
+              });
+            }
+          } else {
+            debug('search');
+            imgur.search(msgText, (link) => {
+              spark.postMessage(link, messageDetail, (msgId) => {
+                if(msgQueue.length >= 10) {
+                  msgQueue.shift();
+                }
 
-  // Check for delete, if it exists at the start of the message we will remove previous posts
-  if (message.toLowerCase().match("^delete")) {
-    var command = message.toLowerCase().split(" ");
-    if (command[1].match("last")) {
-      if (!messageHistory.isEmpty()) {
-        oldMessage = messageHistory.shift();
-        spark.deleteMessage(oldMessage);
+                msgQueue.push(msgId);
+              });
+            });
+          }
+        }
+      } else {
+        debug('search');
+        imgur.search(messageDetail.text, (link) => {
+          spark.postMessage(link, messageDetail, (msgId) => {
+          });
+        });
       }
     }
-  }
-
-  // Everything else is considered search fodder, search ImgUr for it
-  var imageURL = imgur.search(message);
-
-  // Publish the message/image, and push onto queue for historical purposes.
-  var publishedMessage = spark.postMessage(imageURL);
-  messageHistory.push(publishedMessage);
+  });
 });
 
 app.listen(90);

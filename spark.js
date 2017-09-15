@@ -1,4 +1,7 @@
-const request = require('request')
+const request = require('request');
+const debug = require('debug')('spark');
+
+const SPARKAPIKEY = process.env.SPARKAPIKEY;
 
 var getMessage = (msgId, callback) => {
   var sparkAPI = 'https://api.ciscospark.com/v1/messages/';
@@ -6,7 +9,7 @@ var getMessage = (msgId, callback) => {
   var options = {
     url: sparkAPI + msgId,
     headers: {
-      'Authorization': 'Bearer '
+      'Authorization': 'Bearer ' + SPARKAPIKEY
     },
     json: true
   };
@@ -14,6 +17,12 @@ var getMessage = (msgId, callback) => {
   request.get(options, (error, response, data) => {
     if (!error && response.statusCode == 200) {
       callback(data);
+    } else {
+      debug('Module: getMessage');
+      debug('Error: %j', error);
+      debug('Status: %O', response.statusCode);
+      debug('Data: %j', data);
+      debug('Options: %j', options);
     }
   });
 };
@@ -34,7 +43,7 @@ var postMessage = (link, messageDetail, callback) => {
   var options = {
     url: sparkAPI,
     headers: {
-      'Authorization': 'Bearer '
+      'Authorization': 'Bearer ' + SPARKAPIKEY
     },
     body: postData,
     json: true
@@ -43,6 +52,12 @@ var postMessage = (link, messageDetail, callback) => {
   request.post(options, (err, res, body) => {
     if (!err) {
       callback(body);
+    } else {
+      debug('Module: postMessage');
+      debug('Error: %j', error);
+      debug('Status: %O', response.statusCode);
+      debug('Data: %j', data);
+      debug('Options: %j', options);
     }
   });
 };
@@ -53,13 +68,19 @@ var deleteMessage = (msgId, callback) => {
  var options = {
    url: sparkAPI + msgId,
    headers: {
-     'Authorization': 'Bearer '
+     'Authorization': 'Bearer ' + SPARKAPIKEY
    }
  }
 
  request.del(options, (err, res, body) => {
    if(!err) {
      callback(res.statusCode);
+   } else {
+     debug('Module: deleteMessage');
+     debug('Error: %j', error);
+     debug('Status: %O', response.statusCode);
+     debug('Data: %j', data);
+     debug('Options: %j', options);
    }
  });
 };

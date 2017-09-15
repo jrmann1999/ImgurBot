@@ -1,6 +1,7 @@
 const rp = require('request');
+const debug = require('debug')('imgur');
 
-var IMGURAPIKEY = "";
+const IMGURAPIKEY = process.env.IMGURAPIKEY;
 
 var search = (searchString, callback) => {
   var imgurl = 'https://api.imgur.com/3';
@@ -21,7 +22,12 @@ var search = (searchString, callback) => {
 			  break;
 		  }
 	  }
-	}
+	} else {
+      debug('Error: %j', error);
+      debug('Response: %j', response.statusCode);
+      debug('Data: %j', data);
+      debug('Options: %j', options);
+    }
   });
 };
 
